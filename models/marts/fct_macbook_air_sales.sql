@@ -10,7 +10,7 @@ WITH macbook_air_sales AS (
     RECORD_ID,
     "DATE",
     STORE_ID,
-    PRODUCT_NAME,
+    PRODUCT_NAME AS PR_NAME,
     CATEGORY,
     QUANTITY,
     UNIT_PRICE,

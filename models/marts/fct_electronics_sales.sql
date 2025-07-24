@@ -7,7 +7,7 @@
 
 WITH electronics_sales AS (
   SELECT 
-    RECORD_ID,
+    RECORD_ID AS ROW,
     "DATE",
     STORE_ID,
     PRODUCT_NAME,
@@ -49,7 +49,7 @@ WITH electronics_sales AS (
 )
 
 SELECT 
-  RECORD_ID,
+  RECORD_ID As Row,
   "DATE",
   STORE_ID,
   PRODUCT_NAME,

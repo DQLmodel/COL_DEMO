@@ -8,7 +8,7 @@
 WITH macbook_air_sales AS (
   SELECT 
     RECORD_ID,
-    "DATE",
+    "DATE" AS Sample,
     STORE_ID,
     PRODUCT_NAME AS PR_NAME,
     CATEGORY,

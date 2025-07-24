@@ -13,7 +13,7 @@ WITH source_data AS (
     PRODUCT_NAME,
     CATEGORY,
     QUANTITY,
-    UNIT_PRICE,
+    UNIT_PRICE AS DEMO,
     TOTAL_AMOUNT,
     CUSTOMER_ID,
     SALES_REP,

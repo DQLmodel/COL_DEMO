@@ -1,0 +1,168 @@
+-- Diagnostic script to check data flow issues
+-- This will help identify why data isn't reaching target tables
+
+-- Step 1: Check source data count
+SELECT 'Source Data Analysis' as step;
+SELECT COUNT(*) as total_source_records FROM DQLABS_QA.STAGING.RETAIL_SALES;
+
+-- Step 2: Check for NULL values in each column
+SELECT 'NULL Value Analysis' as step;
+SELECT 
+    'RECORD_ID' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN RECORD_ID IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN RECORD_ID IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'DATE' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN "DATE" IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN "DATE" IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'STORE_ID' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN STORE_ID IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN STORE_ID IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'PRODUCT_NAME' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN PRODUCT_NAME IS NULL OR PRODUCT_NAME = '' THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN PRODUCT_NAME IS NULL OR PRODUCT_NAME = '' THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'CATEGORY' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN CATEGORY IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN CATEGORY IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'QUANTITY' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN QUANTITY IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN QUANTITY IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'UNIT_PRICE' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN UNIT_PRICE IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN UNIT_PRICE IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'TOTAL_AMOUNT' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN TOTAL_AMOUNT IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN TOTAL_AMOUNT IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'CUSTOMER_ID' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN CUSTOMER_ID IS NULL OR CUSTOMER_ID = '' THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN CUSTOMER_ID IS NULL OR CUSTOMER_ID = '' THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'SALES_REP' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN SALES_REP IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN SALES_REP IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+UNION ALL
+SELECT 
+    'REGION' as column_name,
+    COUNT(*) as total_records,
+    COUNT(CASE WHEN REGION IS NULL THEN 1 END) as null_count,
+    ROUND(COUNT(CASE WHEN REGION IS NULL THEN 1 END) * 100.0 / COUNT(*), 2) as null_percentage
+FROM DQLABS_QA.STAGING.RETAIL_SALES;
+
+-- Step 3: Check records that would pass the staging filter
+SELECT 'Records Passing Staging Filter' as step;
+WITH source_data AS (
+  SELECT 
+    RECORD_ID,
+    "DATE",
+    STORE_ID,
+    PRODUCT_NAME,
+    CATEGORY,
+    QUANTITY,
+    UNIT_PRICE,
+    TOTAL_AMOUNT,
+    CUSTOMER_ID,
+    SALES_REP,
+    REGION
+  FROM DQLABS_QA.STAGING.RETAIL_SALES
+  WHERE RECORD_ID IS NOT NULL
+    AND "DATE" IS NOT NULL
+    AND STORE_ID IS NOT NULL
+    AND PRODUCT_NAME IS NOT NULL AND PRODUCT_NAME != ''
+    AND CATEGORY IS NOT NULL
+    AND QUANTITY IS NOT NULL
+    AND UNIT_PRICE IS NOT NULL
+    AND TOTAL_AMOUNT IS NOT NULL
+    AND CUSTOMER_ID IS NOT NULL AND CUSTOMER_ID != ''
+    AND SALES_REP IS NOT NULL
+    AND REGION IS NOT NULL
+)
+SELECT COUNT(*) as records_passing_filter FROM source_data;
+
+-- Step 4: Show sample records that are being filtered out
+SELECT 'Sample Records Being Filtered Out' as step;
+SELECT 
+    RECORD_ID,
+    "DATE",
+    STORE_ID,
+    PRODUCT_NAME,
+    CATEGORY,
+    QUANTITY,
+    UNIT_PRICE,
+    TOTAL_AMOUNT,
+    CUSTOMER_ID,
+    SALES_REP,
+    REGION,
+    CASE 
+        WHEN RECORD_ID IS NULL THEN 'RECORD_ID_NULL'
+        WHEN "DATE" IS NULL THEN 'DATE_NULL'
+        WHEN STORE_ID IS NULL THEN 'STORE_ID_NULL'
+        WHEN PRODUCT_NAME IS NULL OR PRODUCT_NAME = '' THEN 'PRODUCT_NAME_NULL'
+        WHEN CATEGORY IS NULL THEN 'CATEGORY_NULL'
+        WHEN QUANTITY IS NULL THEN 'QUANTITY_NULL'
+        WHEN UNIT_PRICE IS NULL THEN 'UNIT_PRICE_NULL'
+        WHEN TOTAL_AMOUNT IS NULL THEN 'TOTAL_AMOUNT_NULL'
+        WHEN CUSTOMER_ID IS NULL OR CUSTOMER_ID = '' THEN 'CUSTOMER_ID_NULL'
+        WHEN SALES_REP IS NULL THEN 'SALES_REP_NULL'
+        WHEN REGION IS NULL THEN 'REGION_NULL'
+        ELSE 'PASSES_FILTER'
+    END as filter_reason
+FROM DQLABS_QA.STAGING.RETAIL_SALES
+WHERE RECORD_ID IS NULL
+    OR "DATE" IS NULL
+    OR STORE_ID IS NULL
+    OR PRODUCT_NAME IS NULL OR PRODUCT_NAME = ''
+    OR CATEGORY IS NULL
+    OR QUANTITY IS NULL
+    OR UNIT_PRICE IS NULL
+    OR TOTAL_AMOUNT IS NULL
+    OR CUSTOMER_ID IS NULL OR CUSTOMER_ID = ''
+    OR SALES_REP IS NULL
+    OR REGION IS NULL
+LIMIT 10;
+
+-- Step 5: Check current target table counts
+SELECT 'Current Target Table Counts' as step;
+SELECT 'STG_RETAIL_SALES' as table_name, COUNT(*) as record_count 
+FROM DQLABS_QA.DBT_MODELS.STG_RETAIL_SALES
+UNION ALL
+SELECT 'FCT_ELECTRONICS_SALES' as table_name, COUNT(*) as record_count 
+FROM DQLABS_QA.DBT_MODELS.FCT_ELECTRONICS_SALES
+UNION ALL
+SELECT 'FCT_MACBOOK_AIR_SALES' as table_name, COUNT(*) as record_count 
+FROM DQLABS_QA.DBT_MODELS.FCT_MACBOOK_AIR_SALES; 

@@ -1,0 +1,77 @@
+# Retail Sales Pipeline Jobs Configuration
+# This file defines different job types for the retail sales transformation pipeline
+
+jobs:
+  # Development Job - Quick testing and development
+  retail_sales_dev:
+    name: "Retail Sales - Development"
+    description: "Development job for retail sales pipeline testing"
+    target: dev
+    commands:
+      - dbt deps
+      - dbt run --select tag:staging
+      - dbt test --select tag:staging
+    schedule: "manual"  # Manual trigger only
+    timeout: 1800  # 30 minutes
+    retry_on_failure: false
+    
+  # Staging Job - Pre-production testing
+  retail_sales_stage:
+    name: "Retail Sales - Staging"
+    description: "Staging job for pre-production testing"
+    target: stage
+    commands:
+      - dbt deps
+      - dbt run --select tag:staging
+      - dbt test --select tag:staging
+      - dbt run --select tag:marts
+      - dbt test --select tag:marts
+      - dbt docs generate
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    timeout: 3600  # 1 hour
+    retry_on_failure: true
+    retry_attempts: 3
+    
+  # Production Job - Full pipeline
+  retail_sales_prod:
+    name: "Retail Sales - Production"
+    description: "Production job for retail sales pipeline"
+    target: prod
+    commands:
+      - dbt deps
+      - dbt run --select tag:staging
+      - dbt test --select tag:staging
+      - dbt run --select tag:marts
+      - dbt test --select tag:marts
+      - dbt docs generate
+      - dbt source freshness
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    timeout: 7200  # 2 hours
+    retry_on_failure: true
+    retry_attempts: 3
+    
+  # Quick Test Job - Fast validation
+  retail_sales_test:
+    name: "Retail Sales - Quick Test"
+    description: "Quick test job for data validation"
+    target: dev
+    commands:
+      - dbt test --select tag:staging
+      - dbt test --select tag:marts
+    schedule: "manual"
+    timeout: 900  # 15 minutes
+    retry_on_failure: false
+    
+  # Documentation Job - Generate docs
+  retail_sales_docs:
+    name: "Retail Sales - Documentation"
+    description: "Generate and publish documentation"
+    target: prod
+    commands:
+      - dbt deps
+      - dbt docs generate
+      - dbt docs serve --port 8080
+    schedule: "0 4 * * *"  # Daily at 4 AM
+    timeout: 1800  # 30 minutes
+    retry_on_failure: true
+    retry_attempts: 2 

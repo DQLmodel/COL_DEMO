@@ -1,0 +1,41 @@
+snowflake_col_project:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "tr68481.us-east-2.aws"
+      user: "USER_QA"
+      password: "Dql@bs2022"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'PUBLIC') }}"
+      database: "DQLABS_QA"
+      warehouse: "DQLABS_QA"
+      schema: "DBT_MODELS"
+      threads: 4
+      client_session_keep_alive: False
+      query_tag: "dbt_dev"
+      
+    stage:
+      type: snowflake
+      account: "tr68481.us-east-2.aws"
+      user: "USER_QA"
+      password: "Dql@bs2022"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'PUBLIC') }}"
+      database: "DQLABS_QA"
+      warehouse: "DQLABS_QA"
+      schema: "DBT_MODELS"
+      threads: 8
+      client_session_keep_alive: False
+      query_tag: "dbt_stage"
+      
+    prod:
+      type: snowflake
+      account: "tr68481.us-east-2.aws"
+      user: "USER_QA"
+      password: "Dql@bs2022"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'PUBLIC') }}"
+      database: "DQLABS_QA"
+      warehouse: "DQLABS_QA"
+      schema: "DBT_MODELS"
+      threads: 16
+      client_session_keep_alive: False
+      query_tag: "dbt_prod" 
